@@ -1,15 +1,79 @@
 # tools/interview — Signal voice-interview workflow
 
-Local voice-interview tool for collecting **gold personas** (BP-005d → BP-005b).
+Local voice-interview tool for collecting **gold personas** (BP-005d → BP-005b → BP-005e).
 Asks structured questions via local TTS, records the interviewee, transcribes
 locally, writes a per-interviewee directory you and your collaborator mark up
 to compose the final gold-persona file.
 
 **Everything runs locally. No remote API calls. No telemetry.**
 
+Two front-ends:
+- **Web UI** (`serve.py` — preferred for non-CLI users; BP-005e). Browser at `http://localhost:8765`.
+- **CLI** (`run.py` — original; useful for automation). Same backend, same output format.
+
+Both use `questions.yaml`, `mlx-whisper`, Kokoro TTS, and write to `.planning/trd/test-corpus/gold/raw/<interviewee>/` with the same `transcript.md` format.
+
 ---
 
-## Quickstart (BP-005b session — what to do tomorrow)
+## Quickstart — Web UI (recommended; BP-005e)
+
+```bash
+cd /Users/riyer/code/signal/tools/interview
+uv run serve.py
+```
+
+Then open `http://localhost:8765` in any browser.
+
+The UI walks the operator + interviewee through:
+1. Consent confirmation (must check box; links to `CONSENT.md`)
+2. Shape picker (each shape shows description + which fitness function it primarily tests)
+3. Interviewee pseudonym entry
+4. Per-question loop: speak via TTS / read aloud yourself / record / review transcript / keep / redo / skip / quit
+5. Done summary + reminder of the markup workflow
+
+### One-time pre-flight
+
+1. **Headphones on.** TTS bleed is the main reason for them. Or click "I'll read it aloud myself" instead of "Speak via TTS."
+2. **Browser mic permission.** First time you click "Record," the browser asks. Allow.
+3. **Sign `CONSENT.md` with the interviewee.** UI requires you to confirm this with a checkbox.
+4. **First run downloads ~3.3 GB** (Whisper large-v3 + Kokoro). One-time. After that fully offline.
+
+### Privacy posture (same as CLI)
+
+- Server binds to `127.0.0.1` only — never `0.0.0.0`. Localhost-only by design.
+- Browser audio capture (`MediaRecorder`) → uploaded to local FastAPI server → mlx-whisper transcribes locally → file written to disk.
+- No network calls leave the machine after first-run model download.
+- F2 zero-outbound posture preserved.
+
+### Audio file format
+
+Browser-captured audio is saved as `.webm/opus`. The CLI captures `.wav`. Whisper handles both via its underlying ffmpeg path. The `transcript.md` format is identical.
+
+### Output
+
+```
+.planning/trd/test-corpus/gold/raw/<interviewee>/
+  audio/
+    Q01-<shape>-opener.webm    (UI captures) OR .wav (CLI captures)
+    Q02-<shape>-probe.webm
+    ...
+  transcript.md                (same format both front-ends)
+```
+
+### Troubleshooting (UI)
+
+| Symptom | Fix |
+|---|---|
+| "Mic permission denied" in browser | Browser settings → Site Settings → `localhost:8765` → Microphone: Allow |
+| TTS doesn't play | Browser autoplay policy; click anywhere on the page first, then retry |
+| Whisper takes 30+ seconds for short clips | First-time model load. Subsequent transcriptions are faster. |
+| Server won't start (port in use) | `SIGNAL_INTERVIEW_PORT=8766 uv run serve.py` |
+
+---
+
+## Quickstart — CLI (BP-005d, original)
+
+The CLI is preserved as fallback for automation or headless use. Same backend, same output format.
 
 There is no GUI. The script uses your **system default microphone** (whatever macOS has selected in System Settings → Sound → Input). No in-script device picker.
 

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signal — voice interview</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div id="app"></div>
+
+  <!-- ============================================================ -->
+  <!-- Templates: rendered by app.js based on state machine          -->
+  <!-- ============================================================ -->
+
+  <template id="tpl-setup">
+    <header>
+      <h1>Signal voice interview</h1>
+      <p class="muted">Local. No outbound calls. Everything stays on this machine.</p>
+    </header>
+
+    <section class="consent-section">
+      <h2>Consent</h2>
+      <p>
+        Before recording, you and the interviewee must read and sign
+        <a href="/CONSENT.md" target="_blank">CONSENT.md</a>.
+      </p>
+      <label>
+        <input type="checkbox" id="consent-checkbox">
+        I confirm CONSENT.md has been read and signed by the interviewee.
+      </label>
+    </section>
+
+    <section>
+      <h2>Pick a shape</h2>
+      <p class="muted">One shape per interviewee. Pick the one that best fits the speaker's career arc.</p>
+      <div id="shapes-grid" class="shapes-grid">
+        <div class="loading">Loading shapes…</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Interviewee pseudonym</h2>
+      <p class="muted">Alphanumeric (hyphens / underscores ok). E.g. <code>gold-003</code> or <code>maya-r</code>.</p>
+      <input type="text" id="interviewee-input" placeholder="gold-003" autocomplete="off">
+    </section>
+
+    <section class="actions">
+      <button id="start-button" disabled>Start session</button>
+      <p class="muted">Headphones recommended. Browser will request mic permission on first record.</p>
+    </section>
+  </template>
+
+  <template id="tpl-session">
+    <header class="session-header">
+      <div>
+        <h1 id="session-shape-name">—</h1>
+        <p class="muted">
+          Interviewee: <span id="session-interviewee">—</span>
+          ·
+          <span id="session-progress">Q?/?</span>
+        </p>
+      </div>
+      <button id="quit-button" class="ghost">Quit session</button>
+    </header>
+
+    <section class="question-card" id="question-card">
+      <div class="question-meta">
+        <span class="depth-tag" id="q-depth">—</span>
+        <span class="muted" id="q-idx">—</span>
+      </div>
+      <p class="question-prompt" id="q-prompt">—</p>
+      <p class="question-intent muted" id="q-intent">—</p>
+    </section>
+
+    <section class="present-actions" id="present-actions">
+      <button id="speak-button">▶ Speak via TTS</button>
+      <button id="read-button" class="secondary">I'll read it aloud myself</button>
+      <button id="skip-button" class="ghost">Skip this question</button>
+    </section>
+
+    <section class="record-actions hidden" id="record-actions">
+      <button id="record-button" class="record">● Record response</button>
+      <button id="back-to-present" class="ghost">Back</button>
+    </section>
+
+    <section class="recording-actions hidden" id="recording-actions">
+      <div class="recording-indicator">
+        <div class="vu-meter"><div class="vu-bar" id="vu-bar"></div></div>
+        <span class="muted">Recording — <span id="rec-timer">0:00</span></span>
+      </div>
+      <button id="stop-button" class="stop">■ Stop recording</button>
+    </section>
+
+    <section class="transcribing-actions hidden" id="transcribing-actions">
+      <p class="loading">Transcribing locally with Whisper…</p>
+    </section>
+
+    <section class="review-actions hidden" id="review-actions">
+      <h3>Transcript</h3>
+      <p class="muted">Edit as needed before keeping. Filler ("um", "uh") usually worth removing; voice and contradictions worth preserving.</p>
+      <textarea id="transcript-textarea" rows="10"></textarea>
+      <div class="actions">
+        <button id="keep-button">✓ Keep and continue</button>
+        <button id="redo-button" class="secondary">↻ Redo</button>
+      </div>
+    </section>
+  </template>
+
+  <template id="tpl-done">
+    <header>
+      <h1>Session complete</h1>
+    </header>
+    <section class="summary" id="summary">
+      <p>Interviewee: <strong id="done-interviewee">—</strong></p>
+      <p>Shape: <strong id="done-shape">—</strong></p>
+      <p>Questions kept: <strong id="done-kept">—</strong> of <strong id="done-total">—</strong> (skipped: <span id="done-skipped">—</span>)</p>
+      <p class="muted">Transcript saved to: <code id="done-path">—</code></p>
+    </section>
+    <section class="next-steps">
+      <h2>Next: ground-truth markup</h2>
+      <ol>
+        <li>Read <code>.planning/trd/test-corpus/SPEC.md</code></li>
+        <li>Sit with your collaborator. Read the transcript together.</li>
+        <li>Identify ground truth: contradictions, load-bearing details, vague claims, evidence anchors.</li>
+        <li>Compose <code>gold-XXX-&lt;pseudo&gt;.md</code> per the SPEC.md template.</li>
+      </ol>
+      <p class="muted">Audio + raw transcript stay local (gitignored). Only the fictionalised gold persona file gets committed.</p>
+    </section>
+    <section class="actions">
+      <button id="new-session-button">Start another session</button>
+    </section>
+  </template>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
