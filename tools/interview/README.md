@@ -9,6 +9,71 @@ to compose the final gold-persona file.
 
 ---
 
+## Quickstart (BP-005b session — what to do tomorrow)
+
+There is no GUI. The script uses your **system default microphone** (whatever macOS has selected in System Settings → Sound → Input). No in-script device picker.
+
+### One-time pre-flight
+
+1. **Headphones on.** TTS bleeds into the mic without them. Alternative: pass `--no-tts` and read questions yourself.
+2. **Mic permission.** macOS Settings → Privacy & Security → Microphone → enable your terminal app (Terminal / iTerm / Ghostty / etc.).
+3. **Pick the right input.** macOS Settings → Sound → Input → confirm the mic you want is selected (built-in vs USB vs AirPods). Script has no override.
+4. **Sign CONSENT.md with the interviewee.** Script asks `[y/N]` at session start — `n` aborts.
+5. **First run downloads ~3.3 GB** (Whisper large-v3 + Kokoro). One-time; subsequent runs are fully offline.
+
+### Per-session command
+
+```bash
+cd /Users/riyer/code/signal/tools/interview
+uv run run.py --shape stated-vs-admitted --interviewee gold-003
+```
+
+Replace the shape and the pseudonym. List shapes: `uv run run.py --list-shapes --shape any --interviewee any`. Seven shapes are defined — pick the one that matches the interviewee's career arc.
+
+### In-session keys
+
+| Phase | Keys |
+|---|---|
+| Question shown | `[s]peak via TTS` · `[r]ead aloud yourself` · `[n]ext` · `[q]uit` |
+| Ready to record | `[r]ecord` · `[s]kip` · `[q]uit` |
+| Recording (live) | press **`[enter]`** to stop |
+| After transcript | `[k]eep` · `[e]dit in $EDITOR` · `[r]edo` |
+
+Skip prompts that aren't earning. Dwell where the speaker mines gold. Script does NOT auto-advance through all 33 prompts — you steer.
+
+### Output
+
+```
+.planning/trd/test-corpus/gold/raw/gold-003/
+  audio/Q01-stated-vs-admitted-opener.wav
+  audio/Q02-...
+  transcript.md
+```
+
+### After the session (the actual BP-005b deliverable)
+
+Recordings are inputs, not the deliverable. Read `../../.planning/trd/test-corpus/SPEC.md`, then sit with your collaborator and:
+1. Read the transcript together.
+2. Mark up ground truth: contradictions, load-bearing details, vague claims, evidence anchors.
+3. Compose `gold-00X-<pseudo>.md` per the SPEC.md template.
+
+Calibrate against the two samples already at `.planning/trd/test-corpus/gold/gold-001-maya-c.md` and `gold-002-david-o.md` — read those first.
+
+Audio + raw transcript stay local and can be deleted per consent preference. **Only the fictionalised gold persona file gets committed.**
+
+### If something goes wrong
+
+| Symptom | Fix |
+|---|---|
+| Silent recording / `No audio device` | Mic permission for terminal (step 2 above) |
+| `RuntimeError: No audio captured` | You hit enter before speaking — retry |
+| TTS bleeds into recording | Headphones, or `--no-tts` |
+| OOM during transcription | `--whisper-model mlx-community/whisper-medium-mlx` |
+| TTS robotic / fails | `--no-tts`, read questions yourself |
+| Wrong mic capturing audio | Change macOS Settings → Sound → Input |
+
+---
+
 ## Prerequisites
 
 - Apple Silicon Mac (M1 / M2 / M3 / M4)
