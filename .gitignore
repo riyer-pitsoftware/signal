@@ -216,3 +216,31 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# === Signal project-specific ===
+
+# Synthetic personas are LLM-generated calibration data, not canonical artifacts.
+# Suki regenerates these per BP-005c; not tracked. Gold + public corpora ARE tracked.
+.planning/trd/test-corpus/synthetic/
+
+# Voice-interview raw audio + transcripts stay local per CONSENT.md.
+# (Final fictionalised gold persona files in gold/ ARE committed.)
+.planning/trd/test-corpus/gold/raw/
+
+# === Catch-all: hidden directories ===
+# Ignore any hidden directory by default; explicitly allow the ones we track.
+.*/
+!.beads/
+!.planning/
+!.github/
+
+# === macOS ===
+.DS_Store
+
+# === Common IDE / editor state ===
+.vscode/
+.idea/
+.fleet/
+.zed/
+.cursor/
+.vs/
