@@ -72,7 +72,6 @@ _kokoro_pipe = None
 def _ensure_whisper():
     global _whisper_imported
     if not _whisper_imported:
-        # mlx-whisper is imported on demand to avoid loading the model at server start
         import mlx_whisper  # noqa: F401
         _whisper_imported = True
 
@@ -83,6 +82,55 @@ def _ensure_kokoro():
         from kokoro import KPipeline
         _kokoro_pipe = KPipeline(lang_code=KOKORO_LANG)
     return _kokoro_pipe
+
+
+def _warm_whisper():
+    """Force whisper to load weights into MLX memory by transcribing 1s of silence.
+
+    mlx-whisper caches the loaded model in module state, so subsequent /record
+    calls don't pay the load cost. Without this warm-up, the FIRST recording in
+    a session waits ~10-30s for model load on top of the actual transcription.
+    """
+    _ensure_whisper()
+    import tempfile
+    from mlx_whisper import transcribe as whisper_transcribe
+
+    silent = np.zeros(16000, dtype=np.float32)  # 1 second of silence @ 16 kHz
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
+        sf.write(f.name, silent, 16000)
+        tmp_path = f.name
+    try:
+        whisper_transcribe(tmp_path, path_or_hf_repo=WHISPER_MODEL_DEFAULT, language="en")
+    finally:
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
+
+
+@app.on_event("startup")
+def warm_models():
+    """Pre-load Whisper + Kokoro at server start so the first user interaction is fast.
+
+    Trade: server takes ~30-90s to start instead of being ready immediately.
+    Opt out via SIGNAL_EAGER_LOAD=0 if you want lazy-load behaviour (dev iteration).
+    """
+    if os.environ.get("SIGNAL_EAGER_LOAD", "1") == "0":
+        print("[startup] SIGNAL_EAGER_LOAD=0 — skipping model warm-up (lazy mode).")
+        return
+    print("[startup] Warming Whisper (large-v3, language=en)…")
+    try:
+        _warm_whisper()
+        print("[startup] Whisper ready.")
+    except Exception as e:
+        print(f"[startup] Whisper warm-up failed (will lazy-load on first /record): {e}")
+    print("[startup] Warming Kokoro TTS…")
+    try:
+        _ensure_kokoro()
+        print("[startup] Kokoro ready.")
+    except Exception as e:
+        print(f"[startup] Kokoro warm-up failed (will lazy-load on first /tts): {e}")
+    print("[startup] Server ready.")
 
 
 # ---------- shape loading ----------
@@ -287,7 +335,13 @@ async def record(session_id: str, audio: UploadFile = File(...)) -> dict[str, An
     _ensure_whisper()
     from mlx_whisper import transcribe as whisper_transcribe
     try:
-        result = whisper_transcribe(str(audio_path), path_or_hf_repo=WHISPER_MODEL_DEFAULT)
+        # language="en" hint reduces Indian-English-vs-other-language misdetection,
+        # which materially improves transcript quality on accented English.
+        result = whisper_transcribe(
+            str(audio_path),
+            path_or_hf_repo=WHISPER_MODEL_DEFAULT,
+            language="en",
+        )
         text = result["text"].strip()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Whisper failed: {e}")

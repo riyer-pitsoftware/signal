@@ -60,14 +60,23 @@ Browser-captured audio is saved as `.webm/opus`. The CLI captures `.wav`. Whispe
   transcript.md                (same format both front-ends)
 ```
 
+### Startup behaviour
+
+By default the server **eagerly loads Whisper + Kokoro at startup** so the first user interaction is fast. Tradeoff: server takes ~30-90 seconds to start (one-time per process). After warm-up, both TTS and transcription are amortised.
+
+Opt out with `SIGNAL_EAGER_LOAD=0 uv run serve.py` if you want lazy loading (faster dev iteration; first /tts and first /record call pay the model-load tax).
+
+Whisper is invoked with `language="en"` to reduce auto-detection misfires on accented English (especially Indian English, where auto-detect sometimes misroutes to other languages or transliterations).
+
 ### Troubleshooting (UI)
 
 | Symptom | Fix |
 |---|---|
-| "Mic permission denied" in browser | Browser settings → Site Settings → `localhost:8765` → Microphone: Allow |
+| "Mic permission denied" in browser | Browser settings → Site Settings → `localhost:<port>` → Microphone: Allow |
 | TTS doesn't play | Browser autoplay policy; click anywhere on the page first, then retry |
-| Whisper takes 30+ seconds for short clips | First-time model load. Subsequent transcriptions are faster. |
+| First transcription still slow | Eager-load may have skipped Whisper (check server log). Verify with `SIGNAL_EAGER_LOAD=1` explicitly. |
 | Server won't start (port in use) | `SIGNAL_INTERVIEW_PORT=8766 uv run serve.py` |
+| Transcript quality poor for accented English | Already passing `language="en"`. Consider switching to `mlx-community/whisper-medium-mlx` (smaller, sometimes more accurate on non-Western accents). Edit `WHISPER_MODEL_DEFAULT` in `serve.py`. |
 
 ---
 
