@@ -34,7 +34,8 @@ Process beads use prefix `signal-`. The plan numbers them BP-NNN.
 | BP-011 | signal-iep | 2 devops | devon | ✓ closed |
 | BP-012 | signal-trq | 3 pm | kenji | ✓ closed |
 | BP-013 | signal-k2w | 3 review | judges | ✓ closed |
-| BP-014 | signal-59z | 4 synthesis | opus | ○ blocked by b0d, k2w, kv5 |
+| BP-013.5 | signal-g3d | 3.5 gate | **user** | ○ blocked by b0d, kv5 |
+| BP-014 | signal-59z | 4 synthesis | opus | ○ blocked by b0d, kv5, g3d |
 | BP-015 | signal-499 | 5 drafting | haiku | ○ blocked by 59z |
 | BP-016 | signal-1zg | 6 qa | judges | ○ blocked by 499 |
 | BP-017 | signal-wwu | 6 qa | simplify | ○ blocked by 499 |
@@ -43,10 +44,17 @@ Process beads use prefix `signal-`. The plan numbers them BP-NNN.
 
 `bd ready` shows currently unblocked work. `bd show <id>` for details. `bd dep tree <id>` to visualize.
 
-## Currently ready (2 beads)
+## Currently ready (1 bead) + 1 in-flight
 
-1. **BP-005b `signal-b0d` (user)** — author 5 gold personas via voice-interview tool. Use `tools/interview/run.py`. See SPEC at `.planning/trd/test-corpus/SPEC.md` and 2 sample gold personas in `.planning/trd/test-corpus/gold/`. **Blocks BP-014 synthesis.**
-2. **BP-005c `signal-kv5` (suki)** — generate 30 synthetic personas + curate 10 public-figure bios per SPEC.md. Output to `.planning/trd/test-corpus/synthetic/` and `.planning/trd/test-corpus/public/`. **Blocks BP-014 synthesis.**
+1. **BP-005b `signal-b0d` (user)** — author 5 gold personas via voice-interview tool. Use `tools/interview/run.py` (see Quickstart in `tools/interview/README.md`). SPEC at `.planning/trd/test-corpus/SPEC.md`; 2 sample gold personas in `.planning/trd/test-corpus/gold/`. **Blocks BP-013.5 signoff → BP-014 synthesis.**
+
+**In flight (background sub-agent):**
+
+- **BP-005c `signal-kv5` (suki)** — generating 30 synthetic personas + 10 public-figure bios. Status: in_progress, dispatched as background sub-agent overnight. Output lands at `.planning/trd/test-corpus/synthetic/` + `public/` + `SUKI-BP-005C-NOTES.md`. Will close itself on completion. **Do not touch the test-corpus tree while in flight.**
+
+**Manual gate (P0, will become ready when both above close):**
+
+- **BP-013.5 `signal-g3d` (user)** — manual signoff on test-corpus quality before synthesis. Inspect Suki's output, confirm your own gold-set, sign off or reject. The only manual gate in the TRD critical path. Without it, BP-014 synthesis runs against potentially poisoned calibration data and F3/F7/F8 thresholds become uncalibratable. Full checklist in the bead description (`bd show signal-g3d`).
 
 ## Judge Panel verdict (BP-013, closed)
 
@@ -98,16 +106,17 @@ tools/
 ## Critical path
 
 ```
-        [briefs done]                                                      [ready to publish TRD]
-            ↓                                                                       ↓
-   ┌── BP-012 Kenji MVP cut ──→ BP-013 Judges pre-draft ──┐
-   │                                                       ├──→ BP-014 Opus synthesis (ADRs, risk, fitness)
-   ├── BP-005b User gold-set ─────────────────────────────┤        ↓
-   │                                                       │   BP-015 Haiku TRD draft
-   └── BP-005c Suki synthetic + public corpus ────────────┘        ↓
-                                                              BP-016 Judges post-draft  ──┐
-                                                                                          ├──→ BP-018 Opus final ──→ BP-019 spawn product beads
-                                                              BP-017 simplify ────────────┘
+        [briefs done]                                                                          [ready to publish TRD]
+            ↓                                                                                            ↓
+   ┌── BP-012 Kenji MVP cut ──✓ BP-013 Judges pre-draft ──✓
+   │                                                       ╲
+   ├── BP-005b User gold-set ──────────────────────────────→ BP-013.5 User signoff ──→ BP-014 Opus synthesis (ADRs, risk, fitness)
+   │                                                       ╱       (manual gate)              ↓
+   └── BP-005c Suki synthetic + public corpus ────────────╱                              BP-015 Haiku TRD draft
+                                                                                              ↓
+                                                                                         BP-016 Judges post-draft  ──┐
+                                                                                                                     ├──→ BP-018 Opus final ──→ BP-019 spawn product beads
+                                                                                         BP-017 simplify ────────────┘
 ```
 
 ## Open questions awaiting user
