@@ -1,7 +1,7 @@
 # Signal — TRD Process Status (resume bookmark)
 
 **Last updated:** 2026-05-10
-**Phase:** Round A & A.5 closed; voice tool shipped; Kenji MVP cut closed; **Judge Panel pre-draft closed (verdict: cut more, 6.5/10); BP-014 synthesis now blocked only on user gold-set (b0d) + Suki corpus (kv5)**
+**Phase:** Round A & A.5 closed; voice tool shipped; Kenji MVP cut closed; Judge Panel pre-draft closed (verdict: cut more, 6.5/10); **Suki BP-005c corpus delivered (30 synthetic + 10 public, T_g initial 0.30); BP-014 synthesis now blocked only on user gold-set (b0d) → manual signoff (g3d)**
 
 This file is the durable resume bookmark. Read this first after a context compact.
 
@@ -23,8 +23,8 @@ Process beads use prefix `signal-`. The plan numbers them BP-NNN.
 | BP-004 | signal-mo3 | 1 architecture | opus | ✓ closed |
 | BP-005 | signal-qa8 | 2 ml | suki | ✓ closed |
 | BP-005a | signal-3pj | 2 corpus | opus | ✓ closed |
-| BP-005b | signal-b0d | 2 corpus | **user** | **○ open** |
-| BP-005c | signal-kv5 | 2 corpus | suki | ○ open |
+| BP-005b | signal-b0d | 2 corpus | **user** | **○ READY** |
+| BP-005c | signal-kv5 | 2 corpus | suki | ✓ closed |
 | BP-005d | signal-4cd | 2 tooling | suki/opus | ✓ closed |
 | BP-006 | signal-k9x | 2 backend | priya | ✓ closed |
 | BP-007 | signal-0t6 | 2 frontend | marcus | ✓ closed |
@@ -44,17 +44,32 @@ Process beads use prefix `signal-`. The plan numbers them BP-NNN.
 
 `bd ready` shows currently unblocked work. `bd show <id>` for details. `bd dep tree <id>` to visualize.
 
-## Currently ready (1 bead) + 1 in-flight
+## Currently ready (1 bead)
 
 1. **BP-005b `signal-b0d` (user)** — author 5 gold personas via voice-interview tool. Use `tools/interview/run.py` (see Quickstart in `tools/interview/README.md`). SPEC at `.planning/trd/test-corpus/SPEC.md`; 2 sample gold personas in `.planning/trd/test-corpus/gold/`. **Blocks BP-013.5 signoff → BP-014 synthesis.**
 
-**In flight (background sub-agent):**
+**Manual gate (P0, will become ready when b0d closes):**
 
-- **BP-005c `signal-kv5` (suki)** — generating 30 synthetic personas + 10 public-figure bios. Status: in_progress, dispatched as background sub-agent overnight. Output lands at `.planning/trd/test-corpus/synthetic/` + `public/` + `SUKI-BP-005C-NOTES.md`. Will close itself on completion. **Do not touch the test-corpus tree while in flight.**
+- **BP-013.5 `signal-g3d` (user)** — manual signoff on test-corpus quality before synthesis. Inspect Suki's output (already delivered), confirm your own gold-set, sign off or reject. Full checklist in `bd show signal-g3d`.
 
-**Manual gate (P0, will become ready when both above close):**
+## BP-005c corpus delivered (Suki, kv5 closed 2026-05-10)
 
-- **BP-013.5 `signal-g3d` (user)** — manual signoff on test-corpus quality before synthesis. Inspect Suki's output, confirm your own gold-set, sign off or reject. The only manual gate in the TRD critical path. Without it, BP-014 synthesis runs against potentially poisoned calibration data and F3/F7/F8 thresholds become uncalibratable. Full checklist in the bead description (`bd show signal-g3d`).
+Files at `.planning/trd/test-corpus/synthetic/` (30 personas) and `public/` (10 figures). INDEX.md per directory; full session notes at `SUKI-BP-005C-NOTES.md`.
+
+**Synthetic shape distribution achieved:** stated-vs-admitted 4 · title-vs-work 5 · evidence-light-influence-heavy 5 (HARD) · sparse-narrative-rich-evidence 4 (HARD) · contradictory-praise 5 (HARD) · domain-pivoter 4 · burnout-and-return 4. Hard-case total **14/30** (target ≥12). One double-shape (synth-014 Felix C.).
+
+**Synthetic seniority:** staff=5 (target 6, slight under), principal=11 (target 10, slight over), director=7, vp=7. Suki declined the rewrite — staff personas are load-bearing on sparse-narrative-rich-evidence (hardest F8 territory).
+
+**Public-figure picks:** Hopper, Knuth, Hamilton, Dijkstra, Shannon, Liskov, Engelbart, Bush, Lovelace, Sagan. 8 deceased, 2 living (Knuth, Liskov) with substantial autobiographical record. Gender 4/6 W/M. Era 1815–2025. Source-material citations in each file.
+
+**T_g recommendation: 0.30** (down from Suki's brief placeholder of 0.35) — corpus's hard-case shapes are exactly where the compressor will reach for buzzwords, so T_g must force back to specifics. Empirical calibration expected to land 0.25–0.32. Cross-persona "always-banned" floor is 5–8 phrases ("transformational," "drove [X]," "best-in-class," "thought leader," "championed," "scaled the [X]"). Per-persona lists carry the long-tail.
+
+**Main-thread spot-check (not full signoff — that's g3d):** sampled `synth-004-david-r.md` (sparse-narrative) and `public-001-hopper.md`. Both pass SPEC discipline — authentic first-person voice with stumbles/hedges, ground-truth contradictions are real (David's claimed sparse career vs his actually-rich evidence; Hopper's documented self-corrections of bug-coinage and COBOL-motherhood legend), source citations in public bios are specific and verifiable. Not slop. Full signoff is still required at g3d before synthesis.
+
+**Specific failure modes Suki flags for BP-014 to test:**
+- "I will not endorse the framing" pattern (Hopper, Liskov, Bush, Sagan, Knuth refuse external praise)
+- "Metric-with-disclaim" pattern (Priya S., Anders R., Omar K., Bea L., Marisol C. give a strong outcome and immediately disclaim attribution)
+- Voice preservation under compression (David R.'s "I just kept fixing things" must not sand to "spearheaded reliability initiatives")
 
 ## Judge Panel verdict (BP-013, closed)
 
