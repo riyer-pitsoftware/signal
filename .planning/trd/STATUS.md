@@ -1,7 +1,7 @@
 # Signal — TRD Process Status (resume bookmark)
 
 **Last updated:** 2026-05-10
-**Phase:** Round A & A.5 closed; voice tool shipped; Kenji MVP cut closed; Judge Panel pre-draft closed (verdict: cut more, 6.5/10); Suki BP-005c corpus delivered (30 synthetic + 10 public, T_g initial 0.30); **judge-flagged blockers (R1 latency / M3 orientation / S1 demo) now formally encoded as resolution beads + signoff gate (BP-013.6 / 013.7 / 013.8 / 013.9). BP-014 synthesis blocked on TWO parallel chains: corpus (b0d → g3d) and architecture (R1+M3+S1 → zph).**
+**Phase:** Round A & A.5 closed; voice tool shipped; Kenji MVP cut closed; Judge Panel pre-draft closed (verdict: cut more, 6.5/10); Suki BP-005c corpus delivered (30 synthetic + 10 public, T_g initial 0.30); **judge-flagged blockers (R1 latency / M3 orientation / S1 demo) + UV methodology gap (M4 elevation) now formally encoded as resolution beads + folded signoff gate (BP-013.6 / 013.7 / 013.8 / 013.10 / 013.9). BP-014 synthesis blocked on TWO parallel chains: corpus (b0d → g3d) and architecture+methodology (R1+M3+S1+UV → zph).**
 
 This file is the durable resume bookmark. Read this first after a context compact.
 
@@ -38,7 +38,8 @@ Process beads use prefix `signal-`. The plan numbers them BP-NNN.
 | BP-013.6 | signal-r1j | 3.6 R1 latency | suki | **○ READY** |
 | BP-013.7 | signal-b5x | 3.7 M3 orientation | dash | **○ READY** |
 | BP-013.8 | signal-aar | 3.8 S1 demo | kenji | **○ READY** |
-| BP-013.9 | signal-zph | 3.9 blocker-gate | **user** | ○ blocked by r1j, b5x, aar |
+| BP-013.10 | signal-sd9 | 3.10 UV methodology | kenji | **○ READY** |
+| BP-013.9 | signal-zph | 3.9 blocker-gate | **user** | ○ blocked by r1j, b5x, aar, sd9 |
 | BP-014 | signal-59z | 4 synthesis | opus | ○ blocked by g3d, zph (corpus + architecture chains) |
 | BP-015 | signal-499 | 5 drafting | haiku | ○ blocked by 59z |
 | BP-016 | signal-1zg | 6 qa | judges | ○ blocked by 499 |
@@ -54,16 +55,17 @@ Process beads use prefix `signal-`. The plan numbers them BP-NNN.
 
 1. **BP-005b `signal-b0d` (user)** — author 5 gold personas via voice-interview tool. Use `tools/interview/run.py` (see Quickstart in `tools/interview/README.md`). SPEC at `.planning/trd/test-corpus/SPEC.md`; 2 sample gold personas in `.planning/trd/test-corpus/gold/`. **Blocks BP-013.5 signoff → BP-014 synthesis.**
 
-**Architecture chain (parallelizable, can dispatch as sub-agents):**
+**Architecture + methodology chain (parallelizable, can dispatch as sub-agents):**
 
 2. **BP-013.6 `signal-r1j` (suki)** — resolve Ravi R1: per-turn LLM call-graph budget vs F5. Deliverable: `briefs/resolution-r1-latency.md` with concrete arithmetic and verdict A/B/C. **Highest-likelihood-of-news-changing-cut.** May force F5 relaxation, which cascades to Kenji's MVP cut and Sofia's demo.
 3. **BP-013.7 `signal-b5x` (dash)** — resolve Mara M3: first-90-seconds orientation design. Deliverable: `briefs/resolution-m3-orientation.md` with literal timestamped narration + first-NPC decision + failure-mode coverage.
 4. **BP-013.8 `signal-aar` (kenji)** — resolve Sofia S1: demo legibility. Deliverable: `briefs/resolution-s1-demo.md` with pasteable 60-90s cold-open + designated visible moments per differentiator + demo failure-mode plan.
+5. **BP-013.10 `signal-sd9` (kenji)** — resolve M4 + cohort gap: pre-registered user-validation methodology. Deliverable: `briefs/resolution-uv-methodology.md` with cohort N defended-or-revised, pre-registered success/failure criteria per PRD §9 metric, and a verbatim-quotable falsification statement. **The validation-truth gate.** Without pre-registration, "feels accurate" decays into post-hoc subjective debrief.
 
 **Manual gates (P0, will become ready when their dependencies close):**
 
 - **BP-013.5 `signal-g3d` (user)** — corpus signoff. Blocked by b0d only (kv5 already closed).
-- **BP-013.9 `signal-zph` (user)** — blocker-resolution signoff. Blocked by r1j + b5x + aar. Two gates intentionally parallel and decoupled (corpus quality vs architectural blocker resolution are different judgment domains).
+- **BP-013.9 `signal-zph` (user)** — blocker-resolution + methodology signoff. Blocked by r1j + b5x + aar + sd9. Two gates intentionally parallel and decoupled: corpus quality (g3d) is a different judgment domain from architectural truth (zph), so each chain progresses independently. Per user decision (2026-05-10), UV methodology folded into zph rather than getting a third gate.
 
 ## BP-005c corpus delivered (Suki, kv5 closed 2026-05-10)
 
@@ -141,11 +143,12 @@ Two parallel chains feed BP-014. Both must clear before synthesis runs.
    │                                    ├──→ BP-013.5 g3d (user signoff) ──┐
    └── BP-005c Suki synthetic ✓ ───────┘                                    │
                                                                             │
-   ARCHITECTURE CHAIN (judge blockers)                                      │
-   ┌── BP-013.6 r1j: Ravi R1 latency arithmetic   (suki) ──┐                │
-   ├── BP-013.7 b5x: Mara M3 first-90s orientation (dash) ─┼──→ BP-013.9   │
-   └── BP-013.8 aar: Sofia S1 demo legibility   (kenji) ───┘    zph        │
-                                                              (user signoff)│
+   ARCHITECTURE + METHODOLOGY CHAIN (judge blockers + UV gap)               │
+   ┌── BP-013.6 r1j: Ravi R1 latency arithmetic       (suki)  ─┐            │
+   ├── BP-013.7 b5x: Mara M3 first-90s orientation     (dash)  ┤            │
+   ├── BP-013.8 aar: Sofia S1 demo legibility          (kenji) ┼─→ BP-013.9 │
+   └── BP-013.10 sd9: M4 user-validation methodology   (kenji) ┘   zph     │
+                                                                  (user)    │
                                                                   │         │
                                                                   ↓         ↓
                                                             BP-014 Opus synthesis (ADRs, risk, fitness)
@@ -241,6 +244,7 @@ uv run run.py --shape stated-vs-admitted --interviewee gold-003
 4. **Sub-agent sandbox blocks `bd close`.** Background sub-agents (e.g., Suki on BP-005c) cannot run `bd close` due to the harness's permission policy. Pattern: agent reports completion, main thread runs `bd close` with the reason the agent supplied. Verify with `bd show` after.
 5. **Track blocker-resolution as rigorously as artifact-completion.** When the judge panel (or any review gate) flags blocker-severity objections, those blockers MUST get explicit resolution beads with falsifiable deliverables that gate downstream work — not a tacit "the next person upstream will figure it out at synthesis time." Otherwise the optimism the reviewer was protesting against gets baked in. Discovered 2026-05-10: g3d corpus-signoff existed but no equivalent gate existed for the three judge-flagged architecture blockers (Ravi R1 latency, Mara M3 orientation, Sofia S1 demo legibility). Fix: BP-013.6/7/8 resolution beads + BP-013.9 signoff gate added in parallel to the corpus chain. **Generalize:** any future judge / reviewer / panel output that includes "blocker"-severity objections should generate a dedicated resolution bead per blocker before downstream work proceeds, not be treated as an input to synthesis.
 6. **Two parallel signoff gates over one bundled gate.** When two independent quality concerns block the same downstream work (e.g., corpus quality vs architecture-blocker resolution at BP-014), keep the gates separate. Bundling them means a single rejection on one stalls the other; separating lets each chain progress independently and surfaces precisely which gate failed if downstream stays blocked.
+7. **Severity ratings are starting points, not floors.** The judge panel rated Mara M4 (cohort sizing + falsification protocol) as "serious" rather than "blocker," which caused the first blocker-sweep to miss it. Discovered 2026-05-10 (user surfaced): for an experiential product whose main claim is felt, the validation methodology IS the truth condition of the claim, so M4 is load-bearing in a way the panel's severity scale didn't capture. **Generalize:** when sweeping for blockers, also re-read every "serious" objection through the lens of *whether the failure mode it names is load-bearing for the product's truth claim*, not just whether the panel said "blocker." Severity is the panel's inference; load-bearing-ness is the product's actual structure.
 
 ## Skills installed for this project
 
