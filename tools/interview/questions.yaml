@@ -1,0 +1,176 @@
+version: 1
+description: |
+  Voice-interview question bank for Signal gold-persona collection (BP-005d → BP-005b).
+  Prompts are organised by the seven persona shapes from SPEC.md (.planning/trd/test-corpus/SPEC.md).
+  Use one shape per interviewee; pick prompts in any order during the session.
+  Each prompt has a depth (opener / probe / follow-up / deep / closer) and an intent
+  (the ground-truth dimension it surfaces).
+
+  Run: `cd tools/interview && uv run run.py --shape <shape-id> --interviewee <pseudonym>`
+
+shapes:
+  - id: stated-vs-admitted
+    name: Stated identity vs admitted self-knowledge
+    primary-tests: [F7]
+    description: |
+      The speaker articulates a self-image early; later in the same conversation
+      they admit something that undercuts it. Surfaces self-knowledge gaps.
+    questions:
+      - depth: opener
+        prompt: Describe your professional style in one sentence.
+        intent: Elicit the stated-identity claim that will be tested against later admissions.
+      - depth: probe
+        prompt: Tell me about your last career move. What was the actual reason you took it?
+        intent: Surface admitted self-knowledge that may contradict the stated identity.
+      - depth: probe
+        prompt: What's something about how you work that other people consistently get wrong?
+        intent: Force articulation of a self-known but unspoken truth.
+      - depth: follow-up
+        prompt: Was the reason you just gave for that career move consistent with the style you described first?
+        intent: Make the contradiction visible to the speaker themselves.
+      - depth: deep
+        prompt: |
+          If you had to pick — are you more the person you described in your first sentence,
+          or the person who made that career move? Pick one. Don't average them.
+        intent: Force a resolution decision the speaker rarely makes consciously.
+
+  - id: title-vs-work
+    name: Title vs actual work
+    primary-tests: [F7, F8]
+    description: |
+      Org-chart role does not match the work product. Director who is an IC,
+      manager who is an architect, VP who is a builder.
+    questions:
+      - depth: opener
+        prompt: What does your title say you do?
+        intent: Anchor the formal role.
+      - depth: probe
+        prompt: Walk me through last week. What did you actually do, hour by hour if you can?
+        intent: Surface the work-product reality.
+      - depth: probe
+        prompt: If your team disappeared for a month, what would your job be?
+        intent: Strip away the management interface and ask what remains.
+      - depth: follow-up
+        prompt: |
+          Whose work product do you sometimes get credit for that is actually theirs?
+          Don't name people — describe the kind of work.
+        intent: Surface invisible labour patterns adjacent to the role.
+      - depth: deep
+        prompt: Whose work product are you sometimes blamed for that is actually yours, but they get the credit?
+        intent: Surface ghost-authorship patterns; signals influence-heavy work.
+
+  - id: evidence-light-influence-heavy
+    name: Evidence-light, influence-heavy
+    primary-tests: [F1, F8]
+    description: |
+      Career has been about influencing decisions, not shipping artifacts.
+      System must probe for specifics rather than fabricate.
+    questions:
+      - depth: opener
+        prompt: Name a project you shipped, and walk me through what you actually contributed.
+        intent: Test whether the speaker can point to artifact-level contribution at all.
+      - depth: probe
+        prompt: |
+          If I asked your last manager what you did all year, what would they say?
+          Be specific about which manager and which year.
+        intent: Force triangulation through an external observer.
+      - depth: probe
+        prompt: Tell me about a decision you influenced that other people don't know was you.
+        intent: Surface invisible-leverage patterns.
+      - depth: follow-up
+        prompt: |
+          Why don't they know it was you? Pick one — you couldn't take credit,
+          you didn't want to, or it wasn't credit-worthy.
+        intent: Distinguish strategic invisibility from absent contribution.
+      - depth: deep
+        prompt: Of all the work you've done, what would survive your absence the longest?
+        intent: Force a durability claim that requires evidence.
+
+  - id: sparse-narrative-rich-evidence
+    name: Sparse narrative, rich evidence
+    primary-tests: [F8, F4]
+    description: |
+      Speaker hates retrospection but has shipped a lot. Bypass narrative;
+      anchor on artifacts and metrics.
+    questions:
+      - depth: opener
+        prompt: Skip the career story. Tell me three concrete things you've shipped, with numbers.
+        intent: Force specificity from the start.
+      - depth: probe
+        prompt: What's the most useful thing you've ever built? Be specific about the build, not the impact.
+        intent: Surface technical-craft signal that résumés flatten.
+      - depth: probe
+        prompt: Name a metric you moved that mattered. By how much. From what to what.
+        intent: Test whether quantitative anchors exist.
+      - depth: follow-up
+        prompt: Why was that the metric that mattered?
+        intent: Probe whether the speaker chose the metric or inherited it.
+      - depth: deep
+        prompt: |
+          Pick one of those three things from the start. Which one would you defend
+          in a 1:1 with a hostile new VP?
+        intent: Force prioritisation under adversarial framing.
+
+  - id: contradictory-praise
+    name: Contradictory praise
+    primary-tests: [F7, F8]
+    description: |
+      External feedback (promotions, kudos, exit-interview complaints) tells two
+      different stories about the same person.
+    questions:
+      - depth: opener
+        prompt: What's the most consistent positive feedback you've received?
+        intent: Anchor the praised identity.
+      - depth: probe
+        prompt: What's the most consistent criticism you've received?
+        intent: Anchor the critiqued identity.
+      - depth: follow-up
+        prompt: Pick one of those that you think the giver was right about.
+        intent: Force the speaker to admit truth in either praise or criticism.
+      - depth: deep
+        prompt: |
+          If both of those are true at the same time — the praise and the criticism —
+          what does that say about how you actually operate?
+        intent: Surface integrative self-knowledge.
+
+  - id: domain-pivoter
+    name: Domain pivoter
+    primary-tests: [F8]
+    description: |
+      Career spans 2–3 unrelated domains. Identity is fragmented; portability is the question.
+    questions:
+      - depth: opener
+        prompt: Tell me about a transition between domains. What carried over?
+        intent: Surface portable skill claims.
+      - depth: probe
+        prompt: What did you have to unlearn?
+        intent: Surface what was domain-specific, not portable.
+      - depth: deep
+        prompt: |
+          If your past self in the previous domain met your current self,
+          what would they get wrong about you?
+        intent: Force articulation of identity drift across domains.
+
+  - id: burnout-and-return
+    name: Burnout-and-return
+    primary-tests: [F7]
+    description: |
+      Career has a visible discontinuity the speaker tends to explain away.
+    questions:
+      - depth: opener
+        prompt: Talk to me about a year when things went sideways professionally. What happened?
+        intent: Open the discontinuity.
+      - depth: probe
+        prompt: Looking back, what were you ignoring?
+        intent: Surface admitted blind spots.
+      - depth: deep
+        prompt: What would have happened if you'd stayed another six months?
+        intent: Test whether the speaker can articulate the alternative.
+
+interviewer-notes-template: |
+  Use these prompts as starting points, not as a script.
+  Improvise follow-ups when the speaker says something specific — the planted-shape
+  prompts surface raw material; your follow-ups deepen it.
+  Watch for: sudden specificity (note the moment), buzzwords (probe immediately),
+  contradictions across the session (you'll mark these in the ground-truth pass).
+  Keep total session under 40 minutes. Stop earlier if the speaker is mining gold.
