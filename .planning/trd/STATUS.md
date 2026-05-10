@@ -1,7 +1,7 @@
 # Signal — TRD Process Status (resume bookmark)
 
 **Last updated:** 2026-05-10
-**Phase:** Round A & A.5 closed; voice tool shipped; Kenji MVP cut closed; Judge Panel pre-draft closed (verdict: cut more, 6.5/10); **Suki BP-005c corpus delivered (30 synthetic + 10 public, T_g initial 0.30); BP-014 synthesis now blocked only on user gold-set (b0d) → manual signoff (g3d)**
+**Phase:** Round A & A.5 closed; voice tool shipped; Kenji MVP cut closed; Judge Panel pre-draft closed (verdict: cut more, 6.5/10); Suki BP-005c corpus delivered (30 synthetic + 10 public, T_g initial 0.30); **judge-flagged blockers (R1 latency / M3 orientation / S1 demo) now formally encoded as resolution beads + signoff gate (BP-013.6 / 013.7 / 013.8 / 013.9). BP-014 synthesis blocked on TWO parallel chains: corpus (b0d → g3d) and architecture (R1+M3+S1 → zph).**
 
 This file is the durable resume bookmark. Read this first after a context compact.
 
@@ -34,8 +34,12 @@ Process beads use prefix `signal-`. The plan numbers them BP-NNN.
 | BP-011 | signal-iep | 2 devops | devon | ✓ closed |
 | BP-012 | signal-trq | 3 pm | kenji | ✓ closed |
 | BP-013 | signal-k2w | 3 review | judges | ✓ closed |
-| BP-013.5 | signal-g3d | 3.5 gate | **user** | ○ blocked by b0d, kv5 |
-| BP-014 | signal-59z | 4 synthesis | opus | ○ blocked by b0d, kv5, g3d |
+| BP-013.5 | signal-g3d | 3.5 corpus-gate | **user** | ○ blocked by b0d (kv5 ✓) |
+| BP-013.6 | signal-r1j | 3.6 R1 latency | suki | **○ READY** |
+| BP-013.7 | signal-b5x | 3.7 M3 orientation | dash | **○ READY** |
+| BP-013.8 | signal-aar | 3.8 S1 demo | kenji | **○ READY** |
+| BP-013.9 | signal-zph | 3.9 blocker-gate | **user** | ○ blocked by r1j, b5x, aar |
+| BP-014 | signal-59z | 4 synthesis | opus | ○ blocked by g3d, zph (corpus + architecture chains) |
 | BP-015 | signal-499 | 5 drafting | haiku | ○ blocked by 59z |
 | BP-016 | signal-1zg | 6 qa | judges | ○ blocked by 499 |
 | BP-017 | signal-wwu | 6 qa | simplify | ○ blocked by 499 |
@@ -44,13 +48,22 @@ Process beads use prefix `signal-`. The plan numbers them BP-NNN.
 
 `bd ready` shows currently unblocked work. `bd show <id>` for details. `bd dep tree <id>` to visualize.
 
-## Currently ready (1 bead)
+## Currently ready (4 beads, all P0)
+
+**Corpus chain:**
 
 1. **BP-005b `signal-b0d` (user)** — author 5 gold personas via voice-interview tool. Use `tools/interview/run.py` (see Quickstart in `tools/interview/README.md`). SPEC at `.planning/trd/test-corpus/SPEC.md`; 2 sample gold personas in `.planning/trd/test-corpus/gold/`. **Blocks BP-013.5 signoff → BP-014 synthesis.**
 
-**Manual gate (P0, will become ready when b0d closes):**
+**Architecture chain (parallelizable, can dispatch as sub-agents):**
 
-- **BP-013.5 `signal-g3d` (user)** — manual signoff on test-corpus quality before synthesis. Inspect Suki's output (already delivered), confirm your own gold-set, sign off or reject. Full checklist in `bd show signal-g3d`.
+2. **BP-013.6 `signal-r1j` (suki)** — resolve Ravi R1: per-turn LLM call-graph budget vs F5. Deliverable: `briefs/resolution-r1-latency.md` with concrete arithmetic and verdict A/B/C. **Highest-likelihood-of-news-changing-cut.** May force F5 relaxation, which cascades to Kenji's MVP cut and Sofia's demo.
+3. **BP-013.7 `signal-b5x` (dash)** — resolve Mara M3: first-90-seconds orientation design. Deliverable: `briefs/resolution-m3-orientation.md` with literal timestamped narration + first-NPC decision + failure-mode coverage.
+4. **BP-013.8 `signal-aar` (kenji)** — resolve Sofia S1: demo legibility. Deliverable: `briefs/resolution-s1-demo.md` with pasteable 60-90s cold-open + designated visible moments per differentiator + demo failure-mode plan.
+
+**Manual gates (P0, will become ready when their dependencies close):**
+
+- **BP-013.5 `signal-g3d` (user)** — corpus signoff. Blocked by b0d only (kv5 already closed).
+- **BP-013.9 `signal-zph` (user)** — blocker-resolution signoff. Blocked by r1j + b5x + aar. Two gates intentionally parallel and decoupled (corpus quality vs architectural blocker resolution are different judgment domains).
 
 ## BP-005c corpus delivered (Suki, kv5 closed 2026-05-10)
 
@@ -120,19 +133,31 @@ tools/
 
 ## Critical path
 
+Two parallel chains feed BP-014. Both must clear before synthesis runs.
+
 ```
-        [briefs done]                                                                          [ready to publish TRD]
-            ↓                                                                                            ↓
-   ┌── BP-012 Kenji MVP cut ──✓ BP-013 Judges pre-draft ──✓
-   │                                                       ╲
-   ├── BP-005b User gold-set ──────────────────────────────→ BP-013.5 User signoff ──→ BP-014 Opus synthesis (ADRs, risk, fitness)
-   │                                                       ╱       (manual gate)              ↓
-   └── BP-005c Suki synthetic + public corpus ────────────╱                              BP-015 Haiku TRD draft
-                                                                                              ↓
-                                                                                         BP-016 Judges post-draft  ──┐
-                                                                                                                     ├──→ BP-018 Opus final ──→ BP-019 spawn product beads
-                                                                                         BP-017 simplify ────────────┘
+   CORPUS CHAIN
+   ┌── BP-005b User gold-set ──────────┐
+   │                                    ├──→ BP-013.5 g3d (user signoff) ──┐
+   └── BP-005c Suki synthetic ✓ ───────┘                                    │
+                                                                            │
+   ARCHITECTURE CHAIN (judge blockers)                                      │
+   ┌── BP-013.6 r1j: Ravi R1 latency arithmetic   (suki) ──┐                │
+   ├── BP-013.7 b5x: Mara M3 first-90s orientation (dash) ─┼──→ BP-013.9   │
+   └── BP-013.8 aar: Sofia S1 demo legibility   (kenji) ───┘    zph        │
+                                                              (user signoff)│
+                                                                  │         │
+                                                                  ↓         ↓
+                                                            BP-014 Opus synthesis (ADRs, risk, fitness)
+                                                                  ↓
+                                                            BP-015 Haiku TRD draft
+                                                                  ↓
+                                                            BP-016 Judges post-draft  ──┐
+                                                                                        ├──→ BP-018 Opus final ──→ BP-019 spawn product beads
+                                                            BP-017 simplify ────────────┘
 ```
+
+Closed upstream: BP-012 Kenji MVP cut ✓ · BP-013 Judges pre-draft ✓ · BP-005c Suki corpus ✓.
 
 ## Open questions awaiting user
 
@@ -184,11 +209,18 @@ ls .planning/trd/briefs/               # confirm briefs landed
 ls .planning/trd/test-corpus/          # corpus state
 ```
 
-**Next architectural action:** the user authors 5 gold personas (BP-005b) and Suki produces 30 synthetic + 10 public-figure bios (BP-005c). Once both land, BP-014 Opus synthesis can run with the full corpus + Kenji's cut + judges' objections, and will need to:
-- Resolve the three judge-panel blockers (Ravi R1 latency arithmetic, Mara M3 first-90-second orientation, Sofia S1 demo-visible differentiators)
+**Next architectural actions (parallel):**
+
+1. **User authors gold-set (b0d).** Voice-interview tool ready. Five personas. Blocks corpus signoff (g3d).
+2. **Dispatch Suki for R1 latency resolution (r1j).** Highest-leverage architecture work — may force F5 relaxation, which cascades to Kenji's MVP cut and Sofia's demo. Should land first among the architecture beads.
+3. **Dispatch Dash for M3 orientation resolution (b5x).** Independent of R1; can run in parallel.
+4. **Dispatch Kenji for S1 demo resolution (aar).** Coordinates with M3 (the first 90s of a session and the first 90s of a demo overlap). Read M3's resolution first if it lands first.
+
+Once b0d closes, user runs corpus signoff (g3d). Once R1+M3+S1 close, user runs blocker-resolution signoff (zph). When both gates close, BP-014 Opus synthesis fires with: full corpus + Kenji's cut + judges' objections + three resolution documents. Synthesis still needs to:
 - Calibrate F3 (genericness ceiling T_g) against the actual gold/synthetic/public corpus
-- Answer Kenji's 6 open questions (the panel already pressure-tested which are load-bearing — see judges-pre-draft.md)
-- Produce ADRs, risk register, and final fitness-function thresholds for the TRD draft (BP-015 Haiku)
+- Answer Kenji's 6 open questions (panel already pressure-tested which are load-bearing — see `briefs/judges-pre-draft.md`)
+- Integrate the three blocker resolutions into ADRs and a final fitness-function table (especially if R1 verdict is B and F5 relaxes)
+- Produce ADRs, risk register, and final fitness thresholds for the TRD draft (BP-015 Haiku)
 
 **Kenji's MVP-cut headline (recap from briefs/kenji.md):** Load-bearing core = multi-agent topology + provenance graph + dual publish gate (F1+F8) + genericness gate (F3). Cut Dash's 7 rooms → 4 (Foyer, Workshop, Library, Glasshouse). Killed the 8 GB tier outright. 8.5/10 scorecard. 6 open questions for BP-014 synthesis.
 
@@ -206,6 +238,9 @@ uv run run.py --shape stated-vs-admitted --interviewee gold-003
 1. **Sub-agents need explicit close instructions AND verification.** Round A agents wrote briefs but did not always run `bd close` despite being told to. Always verify with `bd list --status in_progress` after a wave of sub-agents and manually close stuck ones.
 2. **The "out of extra usage" footer on agent notifications is a status banner, not a failure indicator.** Agents can still complete substantive work after this banner appears.
 3. **`--deps blocks:X` semantics are inverted from intuition.** When creating Y with `--deps blocks:X`, Y blocks X (Y is upstream). For "Y depends on X," create Y without deps and run `bd dep add Y X` afterwards (which records "X blocks Y").
+4. **Sub-agent sandbox blocks `bd close`.** Background sub-agents (e.g., Suki on BP-005c) cannot run `bd close` due to the harness's permission policy. Pattern: agent reports completion, main thread runs `bd close` with the reason the agent supplied. Verify with `bd show` after.
+5. **Track blocker-resolution as rigorously as artifact-completion.** When the judge panel (or any review gate) flags blocker-severity objections, those blockers MUST get explicit resolution beads with falsifiable deliverables that gate downstream work — not a tacit "the next person upstream will figure it out at synthesis time." Otherwise the optimism the reviewer was protesting against gets baked in. Discovered 2026-05-10: g3d corpus-signoff existed but no equivalent gate existed for the three judge-flagged architecture blockers (Ravi R1 latency, Mara M3 orientation, Sofia S1 demo legibility). Fix: BP-013.6/7/8 resolution beads + BP-013.9 signoff gate added in parallel to the corpus chain. **Generalize:** any future judge / reviewer / panel output that includes "blocker"-severity objections should generate a dedicated resolution bead per blocker before downstream work proceeds, not be treated as an input to synthesis.
+6. **Two parallel signoff gates over one bundled gate.** When two independent quality concerns block the same downstream work (e.g., corpus quality vs architecture-blocker resolution at BP-014), keep the gates separate. Bundling them means a single rejection on one stalls the other; separating lets each chain progress independently and surfaces precisely which gate failed if downstream stays blocked.
 
 ## Skills installed for this project
 
