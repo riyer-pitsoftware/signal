@@ -23,9 +23,10 @@ Process beads use prefix `signal-`. The plan numbers them BP-NNN.
 | BP-004 | signal-mo3 | 1 architecture | opus | ✓ closed |
 | BP-005 | signal-qa8 | 2 ml | suki | ✓ closed |
 | BP-005a | signal-3pj | 2 corpus | opus | ✓ closed |
-| BP-005b | signal-b0d | 2 corpus | **user** | **○ READY** |
+| BP-005b | signal-b0d | 2 corpus | **user** | ○ blocked by 6ma |
 | BP-005c | signal-kv5 | 2 corpus | suki | ✓ closed |
 | BP-005d | signal-4cd | 2 tooling | suki/opus | ✓ closed |
+| BP-005e | signal-6ma | 2 tooling | opus | ◐ in_progress |
 | BP-006 | signal-k9x | 2 backend | priya | ✓ closed |
 | BP-007 | signal-0t6 | 2 frontend | marcus | ✓ closed |
 | BP-008 | signal-a9w | 2 creative | dash | ✓ closed |
@@ -50,11 +51,25 @@ Process beads use prefix `signal-`. The plan numbers them BP-NNN.
 
 `bd ready` shows currently unblocked work. `bd show <id>` for details. `bd dep tree <id>` to visualize.
 
-## Currently ready (4 beads, all P0)
+## Currently ready
 
-**Corpus chain:**
+**In flight (main thread):**
 
-1. **BP-005b `signal-b0d` (user)** — author 5 gold personas via voice-interview tool. Use `tools/interview/run.py` (see Quickstart in `tools/interview/README.md`). SPEC at `.planning/trd/test-corpus/SPEC.md`; 2 sample gold personas in `.planning/trd/test-corpus/gold/`. **Blocks BP-013.5 signoff → BP-014 synthesis.**
+- **BP-005e `signal-6ma` (opus)** — Web UI for the voice-interview tool, Medium scope (FastAPI + vanilla HTML+JS, localhost-only). Driver: user product judgment that target audience (technical leaders away from CLI) requires UI exposure. Wraps existing Python tool (mlx-whisper, Kokoro, questions.yaml). CLI tool preserved as fallback. **Blocks BP-005b** because user paused gold-set authoring until UI is ready for collaborator-as-interviewee sessions.
+
+**In flight (5 background sub-agents — architecture chain):**
+
+- `signal-r1j` (suki) — Ravi R1 latency arithmetic
+- `signal-b5x` (dash) — Mara M3 first-90s orientation
+- `signal-aar` (kenji) — Sofia S1 demo legibility
+- `signal-sd9` (kenji) — UV methodology pre-registration
+- `signal-ne9` (dash) — M1/M2 room-cut governance under Rule B
+
+All five running in parallel as of 2026-05-10. Each has coordination notes to read prior resolutions if landed first. Status check: `bd list --status=in_progress`.
+
+**Corpus chain (unblocks when UI lands):**
+
+1. **BP-005b `signal-b0d` (user)** — author 4 gold personas (gold-003 through gold-006) once `6ma` UI is ready. Per user decision 2026-05-10, count revised from 5 to 4 (user interviewee 2×, collaborator interviewee 2×, joint markup, composer = non-interviewee). **Blocks BP-013.5 signoff → BP-014 synthesis.**
 
 **Architecture + methodology chain (parallelizable, can dispatch as sub-agents):**
 
