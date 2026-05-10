@@ -227,6 +227,11 @@ __marimo__/
 # (Final fictionalised gold persona files in gold/ ARE committed.)
 .planning/trd/test-corpus/gold/raw/
 
+# Process review outputs from external internal-only tools (e.g., Codex/GPT-5
+# process-review-closeout). Author uses these as private analysis surfaces;
+# canonical findings flow into beads + briefs, not into the repo.
+.planning/audit-reviews/
+
 # === Catch-all: hidden directories ===
 # Ignore any hidden directory by default; explicitly allow the ones we track.
 .*/
