@@ -1,7 +1,7 @@
 # Signal — TRD Process Status (resume bookmark)
 
 **Last updated:** 2026-05-10
-**Phase:** Round A & A.5 closed; voice tool shipped; **Kenji MVP cut closed; Judge Panel pre-draft (BP-013) ready to dispatch**
+**Phase:** Round A & A.5 closed; voice tool shipped; Kenji MVP cut closed; **Judge Panel pre-draft closed (verdict: cut more, 6.5/10); BP-014 synthesis now blocked only on user gold-set (b0d) + Suki corpus (kv5)**
 
 This file is the durable resume bookmark. Read this first after a context compact.
 
@@ -33,7 +33,7 @@ Process beads use prefix `signal-`. The plan numbers them BP-NNN.
 | BP-010 | signal-16f | 2 visual | design-for-ai | ✓ closed |
 | BP-011 | signal-iep | 2 devops | devon | ✓ closed |
 | BP-012 | signal-trq | 3 pm | kenji | ✓ closed |
-| BP-013 | signal-k2w | 3 review | judges | **○ READY** |
+| BP-013 | signal-k2w | 3 review | judges | ✓ closed |
 | BP-014 | signal-59z | 4 synthesis | opus | ○ blocked by b0d, k2w, kv5 |
 | BP-015 | signal-499 | 5 drafting | haiku | ○ blocked by 59z |
 | BP-016 | signal-1zg | 6 qa | judges | ○ blocked by 499 |
@@ -43,11 +43,20 @@ Process beads use prefix `signal-`. The plan numbers them BP-NNN.
 
 `bd ready` shows currently unblocked work. `bd show <id>` for details. `bd dep tree <id>` to visualize.
 
-## Currently ready (3 beads)
+## Currently ready (2 beads)
 
 1. **BP-005b `signal-b0d` (user)** — author 5 gold personas via voice-interview tool. Use `tools/interview/run.py`. See SPEC at `.planning/trd/test-corpus/SPEC.md` and 2 sample gold personas in `.planning/trd/test-corpus/gold/`. **Blocks BP-014 synthesis.**
 2. **BP-005c `signal-kv5` (suki)** — generate 30 synthetic personas + curate 10 public-figure bios per SPEC.md. Output to `.planning/trd/test-corpus/synthetic/` and `.planning/trd/test-corpus/public/`. **Blocks BP-014 synthesis.**
-3. **BP-013 `signal-k2w` (judges)** — adversarial pre-draft review of Kenji's MVP cut + the 7 Round A briefs. Reads `.planning/trd/briefs/*.md`. Deliverable: `.planning/trd/briefs/judges-pre-draft.md`. **Blocks BP-014 synthesis.**
+
+## Judge Panel verdict (BP-013, closed)
+
+**Verdict: cut more.** Panel weighted 6.5/10 vs Kenji's self-score 8.5/10. The 2-point gap reflects integrated build risk (latency arithmetic, calibration timing, demo legibility) that Kenji's cut-discipline correctly didn't address. Three blocker-severity objections — all must be resolved at BP-014 synthesis:
+
+- **Ravi R1 (Tech):** F5 p50≤4s does not survive Suki's serialized 5-role topology. Realistic p50 ≈ 6–9s, p99 ≈ 12–18s. **Fix demanded:** per-turn LLM call-graph budget specifying sync vs deferred vs cached calls.
+- **Mara M3 (UX):** Marlow as first-90-seconds NPC is a single point of failure — hardest probe with no orientation beat.
+- **Sofia S1 (Demo):** load-bearing differentiators (provenance, dual gate, genericness) are invisible-by-design and demo-hostile. Need designated visible moments per minute.
+
+Full review with numbered objections, demo cold-open script, and pressure-test of Kenji's 6 open questions: `.planning/trd/briefs/judges-pre-draft.md`.
 
 ## File map
 
@@ -151,13 +160,11 @@ ls .planning/trd/briefs/               # confirm briefs landed
 ls .planning/trd/test-corpus/          # corpus state
 ```
 
-**Next architectural action (when user confirms):** dispatch BP-013 Judge Panel as a background sub-agent for adversarial pre-draft review. Their prompt should:
-- Read all 7 Round A briefs at `.planning/trd/briefs/*.md` plus Kenji's MVP cut at `.planning/trd/briefs/kenji.md`
-- Read PRD §9 for success criteria and spine.md for fitness functions F1–F8
-- Read team memory at `~/.claude/projects/-Users-riyer-code-signal/memory/team/judge-panel.md` (Mara/Ravi/Sofia)
-- Stress-test the MVP cut: scope, demo viability, technical risk, UX coherence, fitness-function gameability
-- Output `.planning/trd/briefs/judges-pre-draft.md` with a verdict (ship / cut more / re-scope) and a numbered list of objections each tied to a specific brief or Kenji recommendation
-- Close `signal-k2w` with a one-line summary
+**Next architectural action:** the user authors 5 gold personas (BP-005b) and Suki produces 30 synthetic + 10 public-figure bios (BP-005c). Once both land, BP-014 Opus synthesis can run with the full corpus + Kenji's cut + judges' objections, and will need to:
+- Resolve the three judge-panel blockers (Ravi R1 latency arithmetic, Mara M3 first-90-second orientation, Sofia S1 demo-visible differentiators)
+- Calibrate F3 (genericness ceiling T_g) against the actual gold/synthetic/public corpus
+- Answer Kenji's 6 open questions (the panel already pressure-tested which are load-bearing — see judges-pre-draft.md)
+- Produce ADRs, risk register, and final fitness-function thresholds for the TRD draft (BP-015 Haiku)
 
 **Kenji's MVP-cut headline (recap from briefs/kenji.md):** Load-bearing core = multi-agent topology + provenance graph + dual publish gate (F1+F8) + genericness gate (F3). Cut Dash's 7 rooms → 4 (Foyer, Workshop, Library, Glasshouse). Killed the 8 GB tier outright. 8.5/10 scorecard. 6 open questions for BP-014 synthesis.
 
